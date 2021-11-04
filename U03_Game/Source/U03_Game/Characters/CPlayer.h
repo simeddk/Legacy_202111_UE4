@@ -20,6 +20,15 @@ private: //ActorComp
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCStatusComponent* Status;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCOptionComponent* Option;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCStateComponent* State;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCMontagesComponent* Montages;
+
 public:
 	ACPlayer();
 
