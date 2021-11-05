@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/CStateComponent.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
@@ -29,6 +30,9 @@ private: //ActorComp
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCMontagesComponent* Montages;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCActionComponent* Action;
+
 public:
 	ACPlayer();
 
@@ -45,4 +49,22 @@ private:
 	void OnMoveRight(float InAxis);
 	void OnHorizontalLook(float InAxis);
 	void OnVerticalLook(float InAxis);
+
+private:
+	void OnWalk();
+	void OffWalk();
+
+	void OnEvade();
+
+private:
+	void Begin_BackStep();
+	void Begin_Roll();
+
+public:
+	void End_BackStep();
+	void End_Roll();
+
+private:
+	UFUNCTION()
+		void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 };

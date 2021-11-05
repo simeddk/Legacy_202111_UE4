@@ -40,6 +40,9 @@ private:
 public:	
 	UCMontagesComponent();
 
+	void PlayRoll();
+	void PlayBackStep();
+
 protected:
 	virtual void BeginPlay() override;
 
