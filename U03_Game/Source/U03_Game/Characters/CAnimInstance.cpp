@@ -9,7 +9,7 @@ void UCAnimInstance::NativeBeginPlay()
 	ACharacter* character = Cast<ACharacter>(TryGetPawnOwner());
 	CheckNull(character);
 
-	UCActionComponent* action = CHelpers::GetComponet<UCActionComponent>(character);
+	UCActionComponent* action = CHelpers::GetComponent<UCActionComponent>(character);
 	CheckNull(action);
 
 	action->OnActionTypeChanged.AddDynamic(this, &UCAnimInstance::OnActionTypeChaged);
