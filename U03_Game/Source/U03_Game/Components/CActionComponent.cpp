@@ -1,6 +1,6 @@
 #include "CActionComponent.h"
 #include "Global.h"
-#include "GameFramework/Character.h" //TODO
+#include "GameFramework/Character.h"
 #include "Actions/CActionData.h"
 #include "Actions/CEquipment.h"
 

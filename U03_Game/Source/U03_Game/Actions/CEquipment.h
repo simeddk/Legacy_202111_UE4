@@ -22,8 +22,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	FEquipmentDelegate OnEquipmentDelegate;
+public: //TODO 01. UPROPERTY(BlueprintAssignable) 
+	//->  BP_CPlayer Àç»ý¼º 
+	//-> DT ²È±â
+	//-> DA ²È±â
+	UPROPERTY(BlueprintAssignable)
+		FEquipmentDelegate OnEquipmentDelegate;
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
