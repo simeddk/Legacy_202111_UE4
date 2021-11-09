@@ -6,6 +6,7 @@
 #include "CEquipment.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipmentDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUnequipmentDelegate);
 
 UCLASS()
 class U03_GAME_API ACEquipment : public AActor
@@ -22,12 +23,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public: //TODO 01. UPROPERTY(BlueprintAssignable) 
-	//->  BP_CPlayer Àç»ý¼º 
-	//-> DT ²È±â
-	//-> DA ²È±â
+public:
 	UPROPERTY(BlueprintAssignable)
 		FEquipmentDelegate OnEquipmentDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+		FUnequipmentDelegate OnUnequipmentDelegate;
 
 public:
 	UFUNCTION(BlueprintNativeEvent)

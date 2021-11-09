@@ -34,10 +34,18 @@ class U03_GAME_API UCActionData : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	void BeginPlay(class ACharacter* InOwnerCharacter);
-
+	FORCEINLINE class ACEquipment* GetEquipment() { return Equipment; }
 
 public:
+	void BeginPlay(class ACharacter* InOwnerCharacter);
+
+private:
+	FString GetLabelName(class ACharacter* InOwnerCharacter, FString InName);
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		TSubclassOf<class ACAttachment> AttachmentClass;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		TSubclassOf<class ACEquipment> EquipmentClass;
 
@@ -50,4 +58,5 @@ public:
 
 private:
 	class ACEquipment* Equipment;
+	class ACAttachment* Attachment;
 };

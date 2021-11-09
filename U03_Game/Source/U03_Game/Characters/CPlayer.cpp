@@ -8,6 +8,8 @@
 #include "Components/CStateComponent.h"
 #include "Components/CMontagesComponent.h"
 #include "Components/CActionComponent.h"
+#include "Materials/MaterialInstanceConstant.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 ACPlayer::ACPlayer()
 {
@@ -18,12 +20,11 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
 	//Create ActorComponent
+	CHelpers::CreateActorComponent(this, &Action, "Action");
+	CHelpers::CreateActorComponent(this, &Montages, "Montages");
 	CHelpers::CreateActorComponent(this, &Status, "Status");
 	CHelpers::CreateActorComponent(this, &Option, "Option");
 	CHelpers::CreateActorComponent(this, &State, "State");
-	CHelpers::CreateActorComponent(this, &Montages, "Montages");
-	CHelpers::CreateActorComponent(this, &Action, "Action");
-
 
 	//Component Settings
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
@@ -55,7 +56,20 @@ void ACPlayer::BeginPlay()
 
 	Super::BeginPlay();
 
+	UMaterialInstanceConstant* body, *logo;
+	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&body, "MaterialInstanceConstant'/Game/Materials/M_UE4Man_Body_Inst.M_UE4Man_Body_Inst'");
+	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&logo, "MaterialInstanceConstant'/Game/Materials/M_UE4Man_ChestLogo_Inst.M_UE4Man_ChestLogo_Inst'");
+
+	BodyMaterial = UMaterialInstanceDynamic::Create(body, this);
+	LogoMaterial = UMaterialInstanceDynamic::Create(logo, this);
+
+	GetMesh()->SetMaterial(0, BodyMaterial);
+	GetMesh()->SetMaterial(1, LogoMaterial);
+
+
 	State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
+
+	Action->SetUnarmedMode();
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -163,14 +177,24 @@ void ACPlayer::Begin_Roll()
 
 void ACPlayer::End_BackStep()
 {
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	if (Action->IsUnarmedMode())
+	{
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+	}
 
 	State->SetIdleMode();
 }
 
 void ACPlayer::End_Roll()
 {
+	if (Action->IsUnarmedMode() == false)
+	{
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+
 	State->SetIdleMode();
 }
 
@@ -195,6 +219,8 @@ void ACPlayer::OnTwoHand()
 	Action->SetTwoHandMode();
 }
 
+
+
 void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
@@ -204,3 +230,8 @@ void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 	}
 }
 
+void ACPlayer::ChangeColor(FLinearColor InColor)
+{
+	BodyMaterial->SetVectorParameterValue("BodyColor", InColor);
+	LogoMaterial->SetVectorParameterValue("BodyColor", InColor);
+}
