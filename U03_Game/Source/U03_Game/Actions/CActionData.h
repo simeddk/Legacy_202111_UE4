@@ -27,6 +27,28 @@ public:
 
 };
 
+USTRUCT(BlueprintType)
+struct FDoActionData : public FEquipmentData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+		float Power = 5.0f;
+
+	UPROPERTY(EditAnywhere)
+		float HitStop;
+
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* Effect;
+
+	UPROPERTY(EditAnywhere)
+		FTransform EffectTransform;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UCameraShake> ShakeClass;
+};
+
 
 UCLASS()
 class U03_GAME_API UCActionData : public UDataAsset
@@ -35,6 +57,7 @@ class U03_GAME_API UCActionData : public UDataAsset
 
 public:
 	FORCEINLINE class ACEquipment* GetEquipment() { return Equipment; }
+	FORCEINLINE class ACDoAction* GetDoAction() { return DoAction; }
 
 public:
 	void BeginPlay(class ACharacter* InOwnerCharacter);
@@ -55,8 +78,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		FLinearColor EquipmentColor;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		TSubclassOf<class ACDoAction> DoActionClass;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		TArray<FDoActionData> DoActionDatas;
+
 
 private:
 	class ACEquipment* Equipment;
 	class ACAttachment* Attachment;
+	class ACDoAction* DoAction;
 };
