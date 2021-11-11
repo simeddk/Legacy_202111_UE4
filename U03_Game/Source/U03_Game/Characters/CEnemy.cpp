@@ -3,7 +3,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CStatusComponent.h"
-#include "Components/CStateComponent.h"
 #include "Components/CMontagesComponent.h"
 #include "Components/CActionComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
@@ -50,13 +49,6 @@ ACEnemy::ACEnemy()
 	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
-float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	CLog::Log(Damage);
-
-	return 0.0f;
-}
-
 void ACEnemy::BeginPlay()
 {
 	UMaterialInstanceConstant* body, * logo;
@@ -69,21 +61,64 @@ void ACEnemy::BeginPlay()
 	GetMesh()->SetMaterial(0, BodyMaterial);
 	GetMesh()->SetMaterial(1, LogoMaterial);
 
+	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
+
 	Super::BeginPlay();
 
 	NameWidget->InitWidget();
 	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetNameText(GetName());
 
 	HealthWidget->InitWidget();
-	Cast<UCUserWidget_Health>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetHealth());
+	Cast<UCUserWidget_Health>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	Action->SetUnarmedMode();
-	
+
 }
+
+float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	DamageInstigator = EventInstigator;
+
+	Status->SubHealth(damage);
+
+	if (Status->GetHealth() <= 0.0f)
+	{
+		State->SetDeadMode();
+		return 0.0f;
+	}
+
+	State->SetHittedMode();
+
+	return Status->GetHealth();
+}
+
+void ACEnemy::Hitted()
+{
+	Cast<UCUserWidget_Health>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+
+	Montages->PlayHitted();
+}
+
+void ACEnemy::Dead()
+{
+}
+
 
 void ACEnemy::ChangeColor(FLinearColor InColor)
 {
 	BodyMaterial->SetVectorParameterValue("BodyColor", InColor);
 	LogoMaterial->SetVectorParameterValue("BodyColor", InColor);
 }
+
+void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	switch (InNewType)
+	{
+		case EStateType::Hitted: Hitted();break;
+		case EStateType::Dead:	Dead();	break;
+	}
+}
+
+
 

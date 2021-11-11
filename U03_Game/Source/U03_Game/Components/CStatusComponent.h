@@ -39,6 +39,9 @@ public:
 	void SetMove();
 	void SetStop();
 
+	void AddHealth(float InAmount);
+	void SubHealth(float InAmount);
+
 protected:
 	virtual void BeginPlay() override;
 
