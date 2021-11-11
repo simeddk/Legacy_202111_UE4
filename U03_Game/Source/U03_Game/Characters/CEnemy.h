@@ -12,6 +12,13 @@ class U03_GAME_API ACEnemy : public ACharacter, public IICharacter
 
 private:
 	UPROPERTY(VisibleDefaultsOnly)
+		class UWidgetComponent* NameWidget;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UWidgetComponent* HealthWidget;
+
+private:
+	UPROPERTY(VisibleDefaultsOnly)
 		class UCActionComponent* Action;
 
 	UPROPERTY(VisibleDefaultsOnly)
@@ -25,6 +32,8 @@ private:
 
 public:
 	ACEnemy();
+
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;

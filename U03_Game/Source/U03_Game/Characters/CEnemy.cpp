@@ -1,15 +1,21 @@
 #include "CEnemy.h"
 #include "Global.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CMontagesComponent.h"
 #include "Components/CActionComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Widgets/CUserWidget_Name.h"
+#include "Widgets/CUserWidget_Health.h"
 
 ACEnemy::ACEnemy()
 {
+	CHelpers::CreateComponent(this, &NameWidget, "NameWidget", GetMesh());
+	CHelpers::CreateComponent(this, &HealthWidget, "HealthWidget", GetMesh());
+
 	CHelpers::CreateActorComponent(this, &Action, "Action");
 	CHelpers::CreateActorComponent(this, &Montages, "Montages");
 	CHelpers::CreateActorComponent(this, &Status, "Status");
@@ -28,6 +34,27 @@ ACEnemy::ACEnemy()
 
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 	GetCharacterMovement()->MaxWalkSpeed = Status->GetRunSpeed();
+
+	TSubclassOf<UCUserWidget_Name> nameClass;
+	CHelpers::GetClass<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Widgets/WB_Name.WB_Name_C'");
+	NameWidget->SetWidgetClass(nameClass);
+	NameWidget->SetRelativeLocation(FVector(0, 0, 240));
+	NameWidget->SetDrawSize(FVector2D(240, 30));
+	NameWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	TSubclassOf<UCUserWidget_Health> healthClass;
+	CHelpers::GetClass<UCUserWidget_Health>(&healthClass, "WidgetBlueprint'/Game/Widgets/WB_Health.WB_Health_C'");
+	HealthWidget->SetWidgetClass(healthClass);
+	HealthWidget->SetRelativeLocation(FVector(0, 0, 190));
+	HealthWidget->SetDrawSize(FVector2D(120, 20));
+	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
+}
+
+float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	CLog::Log(Damage);
+
+	return 0.0f;
 }
 
 void ACEnemy::BeginPlay()
@@ -43,6 +70,12 @@ void ACEnemy::BeginPlay()
 	GetMesh()->SetMaterial(1, LogoMaterial);
 
 	Super::BeginPlay();
+
+	NameWidget->InitWidget();
+	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetNameText(GetName());
+
+	HealthWidget->InitWidget();
+	Cast<UCUserWidget_Health>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetHealth());
 
 	Action->SetUnarmedMode();
 	
