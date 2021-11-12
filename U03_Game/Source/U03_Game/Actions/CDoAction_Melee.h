@@ -10,6 +10,10 @@ class U03_GAME_API ACDoAction_Melee : public ACDoAction
 	GENERATED_BODY()
 
 public:
+	FORCEINLINE void EnableCombo() { bEnable = true; }
+	FORCEINLINE void DisableCombo() { bEnable = false; }
+
+public:
 	virtual void DoAction() override;
 	virtual void Begin_DoAction() override;
 	virtual void End_DoAction() override;
@@ -22,4 +26,9 @@ public:
 private:
 	int32 Index;
 
+	bool bEnable;
+	bool bExist;
+	bool bLast;
+
+	TArray<class ACharacter*> HittedCharacter;
 };
