@@ -24,6 +24,11 @@ public:
 	virtual void OnAttachmentEndOverlap(class ACharacter* InAttacker, class AActor* InAttackCauser, class ACharacter* InOtherCharacter) override;
 
 private:
+	UFUNCTION()
+		void RestoreGlobalTimeDilation();
+
+
+private:
 	int32 Index;
 
 	bool bEnable;

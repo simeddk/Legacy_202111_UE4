@@ -115,6 +115,8 @@ void ACEnemy::Hitted()
 
 void ACEnemy::Dead()
 {
+	CheckFalse(State->IsDeadMode());
+	Montages->PlayDead();
 }
 
 

@@ -56,6 +56,7 @@ void ACDoAction_Melee::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOtherCharacter);
 
+	//한번 피격된 캐릭터는 충돌 처리에서 제외
 	for (const ACharacter* other : HittedCharacter)
 	{
 		if (other == InOtherCharacter)
@@ -63,6 +64,34 @@ void ACDoAction_Melee::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 	}
 	HittedCharacter.Add(InOtherCharacter);
 
+	//히트 스탑
+	float hitStop = Datas[Index].HitStop;
+	if (FMath::IsNearlyZero(hitStop) == false)
+	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 2e-2f);
+		UKismetSystemLibrary::K2_SetTimer(this, "RestoreGlobalTimeDilation", hitStop * 2e-2f, false);
+	}
+
+	//히트 파티클
+	UParticleSystem* hitEffect = Datas[Index].Effect;
+	if (!!hitEffect)
+	{
+		FTransform transform = Datas[Index].EffectTransform;
+		transform.AddToTranslation(InOtherCharacter->GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, transform);
+	}
+
+	//카메라 쉐이크
+	TSubclassOf<UCameraShake> shake = Datas[Index].ShakeClass;
+	if (!!shake)
+	{
+		APlayerController* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (!!controller)
+			controller->PlayerCameraManager->PlayCameraShake(shake);
+	}
+	
+
+	//실제 대미지 전달
 	FDamageEvent e;
 	InOtherCharacter->TakeDamage(Datas[Index].Power, e, InAttacker->GetController(), InAttackCauser);
 }
@@ -74,3 +103,7 @@ void ACDoAction_Melee::OnAttachmentEndOverlap(ACharacter* InAttacker, AActor* In
 	HittedCharacter.Empty();
 }
 
+void ACDoAction_Melee::RestoreGlobalTimeDilation()
+{
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+}

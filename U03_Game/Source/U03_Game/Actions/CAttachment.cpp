@@ -69,3 +69,13 @@ void ACAttachment::AttachTo(FName InSocketName)
 		InSocketName
 	);
 }
+
+void ACAttachment::AttachToCollision(USceneComponent* InComponent, FName InSocketName)
+{
+	InComponent->AttachToComponent
+	(
+		OwnerCharacter->GetMesh(),
+		FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
+		InSocketName
+	);
+}
