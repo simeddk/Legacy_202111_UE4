@@ -123,3 +123,29 @@ void UCActionComponent::DoAction()
 			action->DoAction();
 	}
 }
+
+void UCActionComponent::DoOnAim()
+{
+	CheckTrue(IsUnarmedMode());
+
+	if (!!Datas[(int32)Type])
+	{
+		ACDoAction* action = Datas[(int32)Type]->GetDoAction();
+
+		if (!!action)
+			action->OnAim();
+	}
+}
+
+void UCActionComponent::DoOffAim()
+{
+	CheckTrue(IsUnarmedMode());
+
+	if (!!Datas[(int32)Type])
+	{
+		ACDoAction* action = Datas[(int32)Type]->GetDoAction();
+
+		if (!!action)
+			action->OffAim();
+	}
+}

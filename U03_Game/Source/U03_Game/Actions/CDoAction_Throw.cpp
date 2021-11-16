@@ -36,3 +36,13 @@ void ACDoAction_Throw::End_DoAction()
 void ACDoAction_Throw::Tick(float DeltaTime)
 {
 }
+
+void ACDoAction_Throw::OnAim()
+{
+	Aim->On();
+}
+
+void ACDoAction_Throw::OffAim()
+{
+	Aim->Off();
+}

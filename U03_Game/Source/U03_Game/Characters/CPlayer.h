@@ -74,6 +74,9 @@ private:
 
 	void OnDoAction();
 
+	void OnAim();
+	void OffAim();
+
 public:
 	virtual void ChangeColor(FLinearColor InColor) override;
 

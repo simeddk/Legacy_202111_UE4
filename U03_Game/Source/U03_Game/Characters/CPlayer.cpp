@@ -98,6 +98,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("MagicBall", EInputEvent::IE_Pressed, this, &ACPlayer::OnMagicBall);
 
 	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, this, &ACPlayer::OnDoAction);
+	
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &ACPlayer::OnAim);
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &ACPlayer::OffAim);
 }
 
 void ACPlayer::OnMoveForward(float InAxis)
@@ -232,6 +235,16 @@ void ACPlayer::OnMagicBall()
 void ACPlayer::OnDoAction()
 {
 	Action->DoAction();
+}
+
+void ACPlayer::OnAim()
+{
+	Action->DoOnAim();
+}
+
+void ACPlayer::OffAim()
+{
+	Action->DoOffAim();
 }
 
 

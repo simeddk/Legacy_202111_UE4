@@ -18,6 +18,9 @@ public:
 	virtual void End_DoAction() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void OnAim() override;
+	virtual void OffAim() override;
 	
 	UPROPERTY()
 		class UCAim* Aim;
