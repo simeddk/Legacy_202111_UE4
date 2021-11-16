@@ -47,6 +47,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UCameraShake> ShakeClass;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class ACThrow> ThrowClass;
 };
 
 
