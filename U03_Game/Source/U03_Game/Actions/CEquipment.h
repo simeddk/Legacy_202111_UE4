@@ -16,6 +16,8 @@ class U03_GAME_API ACEquipment : public AActor
 public:
 	FORCEINLINE void SetData(FEquipmentData InData) { Data = InData; }
 	FORCEINLINE void SetColor(FLinearColor InColor) { Color = InColor; }
+	FORCEINLINE const bool* GetEquipped() { return &bEquipped; }
+
 	
 public:	
 	ACEquipment();
@@ -60,6 +62,7 @@ protected:
 	
 
 private:
+	bool bEquipped;
 	FEquipmentData Data;
 	FLinearColor Color;
 };
