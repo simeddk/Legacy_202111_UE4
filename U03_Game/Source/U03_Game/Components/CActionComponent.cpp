@@ -1,6 +1,7 @@
 #include "CActionComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "Actions/CAction.h"
 #include "Actions/CActionData.h"
 #include "Actions/CEquipment.h"
 #include "Actions/CAttachment.h"
@@ -19,8 +20,8 @@ void UCActionComponent::BeginPlay()
 	ACharacter* character = Cast<ACharacter>(GetOwner());
 	for (int32 i = 0; i < (int32)EActionType::Max; i++)
 	{
-		if (!!Datas[i])
-			Datas[i]->BeginPlay(character);
+		if (!!DatasAssets[i])
+			DatasAssets[i]->BeginPlay(character, &Datas[i]);
 	}
 }
 
@@ -66,7 +67,7 @@ void UCActionComponent::SetMagicBallMode()
 
 void UCActionComponent::OffAllCollision()
 {
-	for (UCActionData* data : Datas)
+	for (UCAction* data : Datas)
 	{
 		if (!!data == false)
 			continue;
@@ -94,7 +95,7 @@ void UCActionComponent::SetMode(EActionType InType)
 			Datas[(int32)Type]->GetEquipment()->Unequip();
 	}
 
-	if (!!Datas[(int32)InType])
+	if (!!Datas[(int32)InType] && !!Datas[(int32)InType]->GetEquipment())
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
 	ChangeType(InType);

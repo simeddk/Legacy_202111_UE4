@@ -16,6 +16,8 @@ private:
 		class UBehaviorTree* BehaviorTree;
 
 public:
-	class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
-	
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
+
+public:
+	ACEnemy_AI();
 };
