@@ -1,4 +1,6 @@
 #include "CStatusComponent.h"
+#include "Global.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UCStatusComponent::UCStatusComponent()
 {
@@ -20,6 +22,13 @@ void UCStatusComponent::SetMove()
 void UCStatusComponent::SetStop()
 {
 	bCanMove = false;
+}
+
+void UCStatusComponent::SetSpeed(ECharacterSpeed InSpeed)
+{
+	UCharacterMovementComponent* movement = CHelpers::GetComponent<UCharacterMovementComponent>(GetOwner());
+
+	movement->MaxWalkSpeed = Speed[(int32)InSpeed];
 }
 
 void UCStatusComponent::AddHealth(float InAmount)
