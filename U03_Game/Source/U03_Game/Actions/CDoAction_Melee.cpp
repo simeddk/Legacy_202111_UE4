@@ -56,6 +56,8 @@ void ACDoAction_Melee::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOtherCharacter);
 
+	CheckNull(InOtherCharacter);
+
 	//한번 피격된 캐릭터는 충돌 처리에서 제외
 	for (const ACharacter* other : HittedCharacter)
 	{

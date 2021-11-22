@@ -1,9 +1,12 @@
 #include "CDoAction_Warp.h"
 #include "Global.h"
+#include "AIController.h"
 #include "GameFramework/Character.h"
 #include "Components/DecalComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
+#include "Components/CBehaviorComponent.h"
+#include "Characters/CPlayer.h"
 #include "Actions/CAttachment.h"
 
 void ACDoAction_Warp::BeginPlay()
@@ -27,9 +30,19 @@ void ACDoAction_Warp::DoAction()
 
 	CheckFalse(*bEquipped);
 
-	FRotator rotator;
-	CheckFalse(GetCursorLocationAndRotation(Location, rotator));
+	if (UseCursorLocation())
+	{
+		FRotator rotator;
+		CheckFalse(GetCursorLocationAndRotation(Location, rotator));
+	}
+	else
+	{
+		AAIController* controller = OwnerCharacter->GetController<AAIController>();
+		UCBehaviorComponent* behavior = CHelpers::GetComponent<UCBehaviorComponent>(controller);
 
+		Location = behavior->GetWarpLocation();
+		Decal->SetVisibility(false);
+	}
 	CheckFalse(State->IsIdleMode());
 	State->SetActionMode();
 	OwnerCharacter->PlayAnimMontage(Datas[0].AnimMontage, Datas[0].PlayRate, Datas[0].StartSection);
@@ -55,6 +68,12 @@ void ACDoAction_Warp::Tick(float DeltaTime)
 {
 	CheckFalse(*bEquipped);
 
+	if (UseCursorLocation() == nullptr)
+	{
+		Decal->SetVisibility(false);
+		return;
+	}
+
 	FVector location;
 	FRotator rotator;
 	if (GetCursorLocationAndRotation(location, rotator))
@@ -65,6 +84,11 @@ void ACDoAction_Warp::Tick(float DeltaTime)
 	}
 	else
 		Decal->SetVisibility(false);
+}
+
+ACPlayer* ACDoAction_Warp::UseCursorLocation()
+{
+	return Cast<ACPlayer>(OwnerCharacter);
 }
 
 bool ACDoAction_Warp::GetCursorLocationAndRotation(FVector& OutLocation, FRotator& OutRotator)

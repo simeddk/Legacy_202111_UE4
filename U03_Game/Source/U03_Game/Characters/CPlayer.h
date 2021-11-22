@@ -55,6 +55,7 @@ private:
 	void OnMoveRight(float InAxis);
 	void OnHorizontalLook(float InAxis);
 	void OnVerticalLook(float InAxis);
+	void OnZoom(float InAxis);
 
 private:
 	void OnWalk();

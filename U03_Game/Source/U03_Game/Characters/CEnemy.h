@@ -13,6 +13,9 @@ class U03_GAME_API ACEnemy : public ACharacter, public IICharacter
 
 
 private:
+	UPROPERTY(EditAnywhere, Category = "DebugSettings")
+		bool bDrawName = true;
+
 	UPROPERTY(EditDefaultsOnly)
 		float LaunchValue = 100.0f;
 
@@ -57,6 +60,7 @@ private:
 private:
 	void Hitted();
 	void Dead();
+	void End_Dead() override;
 
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;

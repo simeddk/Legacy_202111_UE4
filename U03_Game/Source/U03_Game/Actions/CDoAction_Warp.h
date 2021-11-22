@@ -16,10 +16,11 @@ public:
 	virtual void DoAction() override;
 	virtual void Begin_DoAction() override;
 	virtual void End_DoAction() override;
-
+	
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	class ACPlayer* UseCursorLocation();
 	bool GetCursorLocationAndRotation(FVector& OutLocation, FRotator& OutRotator);
 
 	
