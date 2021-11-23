@@ -43,6 +43,15 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		behavior->SetWaitMode();
 		return;
 	}
+	else
+	{
+		UCStateComponent* targetState = CHelpers::GetComponent<UCStateComponent>(target);
+		if (targetState->IsDeadMode())
+		{
+			behavior->SetWaitMode();
+			return;
+		}
+	}
 
 	float distance = aiPawn->GetDistanceTo(target);
 

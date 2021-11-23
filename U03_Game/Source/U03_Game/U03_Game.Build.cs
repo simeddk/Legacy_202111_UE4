@@ -13,7 +13,8 @@ public class U03_Game : ModuleRules
 			"Engine",
 			"InputCore",
 			"AIModule",
-			"GameplayTasks"
+			"GameplayTasks",
+			"ProceduralMeshComponent"
 		});
 
 		PublicIncludePaths.Add(ModuleDirectory);
