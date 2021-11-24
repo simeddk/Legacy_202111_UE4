@@ -20,6 +20,12 @@ ACSliceMesh::ACSliceMesh()
 	CHelpers::GetAsset<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Game/Materials/MAT_Base_Inst.MAT_Base_Inst'");
 	StaticMesh->SetMaterial(0, material);
 
+	StaticMesh->SetVisibility(false);
+	StaticMesh->SetCollisionProfileName("NoCollision");
+
+	ProcMesh->SetSimulatePhysics(true);
+	ProcMesh->bUseComplexAsSimpleCollision = false;
+
 }
 
 void ACSliceMesh::OnConstruction(const FTransform& Transform)

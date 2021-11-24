@@ -43,6 +43,9 @@ private: //ActorComp
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCActionComponent* Action;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCFeetComponent* Feet;
+
 public:
 	FORCEINLINE class UCUserWidget_Select* GetSelectWidget() { return SelectWidget; }
 
@@ -97,6 +100,8 @@ private:
 	void OnSelectAction();
 	void OffSelectAction();
 
+	void OnInteract();
+
 	void Hitted();
 	void Dead();
 	void End_Dead();
@@ -108,12 +113,19 @@ private:
 	UFUNCTION()
 		void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 
+	UFUNCTION()
+		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;
 	class UMaterialInstanceDynamic* LogoMaterial;
 
 private:
 	class AController* DamageInstigator;
+	class ACInteractDoor* InteractDoor;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

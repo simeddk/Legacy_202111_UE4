@@ -9,10 +9,12 @@
 #include "Components/CStateComponent.h"
 #include "Components/CMontagesComponent.h"
 #include "Components/CActionComponent.h"
+#include "Components/CFeetComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Widgets/CUserWidget_Select.h"
 #include "Widgets/CUserWidget_SelectItem.h"
+#include "Objects/CInteractDoor.h"
 
 ACPlayer::ACPlayer()
 {
@@ -28,6 +30,7 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent(this, &Status, "Status");
 	CHelpers::CreateActorComponent(this, &Option, "Option");
 	CHelpers::CreateActorComponent(this, &State, "State");
+	CHelpers::CreateActorComponent(this, &Feet, "Feet");
 
 	//Component Settings
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
@@ -85,6 +88,9 @@ void ACPlayer::BeginPlay()
 	SelectWidget->GetItem("Item4")->OnUserWidget_Select_Clicked.AddDynamic(this, &ACPlayer::OnMagicBall);
 	SelectWidget->GetItem("Item5")->OnUserWidget_Select_Clicked.AddDynamic(this, &ACPlayer::OnWarp);
 	SelectWidget->GetItem("Item6")->OnUserWidget_Select_Clicked.AddDynamic(this, &ACPlayer::OnTornado);
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::OnBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACPlayer::OnEndOverlap);
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -121,6 +127,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("SelectAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSelectAction);
 	PlayerInputComponent->BindAction("SelectAction", EInputEvent::IE_Released, this, &ACPlayer::OffSelectAction);
+
+	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ACPlayer::OnInteract);
 }
 
 FGenericTeamId ACPlayer::GetGenericTeamId() const
@@ -316,6 +324,12 @@ void ACPlayer::OffSelectAction()
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 }
 
+void ACPlayer::OnInteract()
+{
+	if (!!InteractDoor)
+		InteractDoor->Interact(Camera->GetForwardVector());
+}
+
 float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
@@ -375,4 +389,28 @@ void ACPlayer::ChangeColor(FLinearColor InColor)
 {
 	BodyMaterial->SetVectorParameterValue("BodyColor", InColor);
 	LogoMaterial->SetVectorParameterValue("BodyColor", InColor);
+}
+
+void ACPlayer::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	CheckNull(OtherActor);
+	CheckNull(OtherComp);
+	CheckTrue(OtherActor == this);
+
+	//Cast<ACInteractDoor>(OtherActor)
+	//OtherActor->IsA<ACInteractDoor>
+	if (OtherActor->GetClass()->IsChildOf(ACInteractDoor::StaticClass()))
+		InteractDoor = Cast<ACInteractDoor>(OtherActor);
+}
+
+void ACPlayer::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	CheckNull(OtherActor);
+	CheckNull(OtherComp);
+	CheckTrue(OtherActor == this);
+
+	//Cast<ACInteractDoor>(OtherActor)
+	//OtherActor->IsA<ACInteractDoor>
+	if (OtherActor->GetClass()->IsChildOf(ACInteractDoor::StaticClass()))
+		InteractDoor = nullptr;
 }
