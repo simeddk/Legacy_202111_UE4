@@ -3,6 +3,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/PostProcessComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/COptionComponent.h"
@@ -23,6 +24,7 @@ ACPlayer::ACPlayer()
 	//Create SceneComponent
 	CHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
 	CHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
+	CHelpers::CreateComponent(this, &PostProcess, "PostProcess", GetRootComponent());
 
 	//Create ActorComponent
 	CHelpers::CreateActorComponent(this, &Action, "Action");
@@ -55,6 +57,14 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
+	UTexture* dirtMask;
+	CHelpers::GetAsset<UTexture>(&dirtMask, "Texture2D'/Game/Textures/Baisic/T_SpeedLine.T_SpeedLine'");
+	PostProcess->bEnabled = true;
+	PostProcess->Settings.BloomDirtMask = dirtMask;
+	PostProcess->Settings.bOverride_BloomDirtMask = false;
+	PostProcess->Settings.bOverride_BloomDirtMaskIntensity = false;
+	PostProcess->Settings.BloomDirtMaskIntensity = 25.0f;
+
 	//Widget
 	CHelpers::GetClass<UCUserWidget_Select>(&SelectWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Select.WB_Select_C'");
 }
@@ -65,11 +75,13 @@ void ACPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	UMaterialInstanceConstant* body, *logo;
-	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&body, "MaterialInstanceConstant'/Game/Materials/M_UE4Man_Body_Inst.M_UE4Man_Body_Inst'");
+	//CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&body, "MaterialInstanceConstant'/Game/Materials/M_UE4Man_Body_Inst.M_UE4Man_Body_Inst'");
+	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&body, "MaterialInstanceConstant'/Game/Materials/MAT_Smear_Inst.MAT_Smear_Inst'");
 	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&logo, "MaterialInstanceConstant'/Game/Materials/M_UE4Man_ChestLogo_Inst.M_UE4Man_ChestLogo_Inst'");
 
 	BodyMaterial = UMaterialInstanceDynamic::Create(body, this);
 	LogoMaterial = UMaterialInstanceDynamic::Create(logo, this);
+	
 
 	GetMesh()->SetMaterial(0, BodyMaterial);
 	GetMesh()->SetMaterial(1, LogoMaterial);
@@ -144,6 +156,7 @@ void ACPlayer::OnMoveForward(float InAxis)
 	FVector direction = FQuat(rotator).GetForwardVector();
 
 	AddMovementInput(direction, InAxis);
+	UpdateSmear();
 }
 
 void ACPlayer::OnMoveRight(float InAxis)
@@ -154,6 +167,7 @@ void ACPlayer::OnMoveRight(float InAxis)
 	FVector direction = FQuat(rotator).GetRightVector();
 
 	AddMovementInput(direction, InAxis);
+	UpdateSmear();
 }
 
 void ACPlayer::OnHorizontalLook(float InAxis)
@@ -189,6 +203,24 @@ void ACPlayer::OnEvade()
 	CheckFalse(State->IsIdleMode());
 	CheckFalse(Status->CanMove());
 
+	if (Action->IsUnarmedMode())
+	{
+		GetCharacterMovement()->GravityScale = 0.0f;
+
+		FVector direction = FVector::ZeroVector;
+		if (FMath::IsNearlyZero(GetVelocity().Size()))
+			direction = GetActorUpVector();
+		else
+			direction = GetVelocity().GetSafeNormal();
+
+		FVector launch = direction * GetCharacterMovement()->MaxWalkSpeed * 0.5f;
+
+		LaunchCharacter(launch, false, true);
+		SpringArm->TargetArmLength = 300.0f;
+		UKismetSystemLibrary::K2_SetTimer(this, "EndEvade", 1.0f, false);
+		return;
+	}
+
 
 	if (InputComponent->GetAxisValue("MoveForward") < 0.0f)
 	{
@@ -197,6 +229,12 @@ void ACPlayer::OnEvade()
 	}
 
 	State->SetRollMode();
+}
+
+void ACPlayer::EndEvade()
+{
+	GetCharacterMovement()->GravityScale = 1.0f;
+	SpringArm->TargetArmLength = 200.0f;
 }
 
 void ACPlayer::Begin_BackStep()
@@ -241,6 +279,19 @@ void ACPlayer::End_Roll()
 
 
 	State->SetIdleMode();
+}
+
+void ACPlayer::UpdateSmear()
+{
+	if (FMath::IsNearlyEqual(GetCharacterMovement()->MaxWalkSpeed, Status->GetSprintSpeed()))
+	{
+		BodyMaterial->SetVectorParameterValue("Direction", -GetVelocity());
+		BodyMaterial->SetScalarParameterValue("Amount", GetCharacterMovement()->MaxWalkSpeed * SmearLength);
+		return;
+	}
+
+	BodyMaterial->SetVectorParameterValue("Direction", FVector::ZeroVector);
+	BodyMaterial->SetScalarParameterValue("Amount", 0.0f);
 }
 
 void ACPlayer::OnFist()
@@ -353,8 +404,18 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 void ACPlayer::Hitted()
 {
+	PostProcess->Settings.bOverride_BloomDirtMask = true;
+	PostProcess->Settings.bOverride_BloomDirtMaskIntensity = true;
+	UKismetSystemLibrary::K2_SetTimer(this, "Hitted_End", 0.2f, false);
+
 	Montages->PlayHitted();
 	Status->SetMove();
+}
+
+void ACPlayer::Hitted_End()
+{
+	PostProcess->Settings.bOverride_BloomDirtMask = false;
+	PostProcess->Settings.bOverride_BloomDirtMaskIntensity = false;
 }
 
 void ACPlayer::Dead()
