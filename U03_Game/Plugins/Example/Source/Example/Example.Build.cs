@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 using UnrealBuildTool;
 
 public class Example : ModuleRules
@@ -15,7 +13,6 @@ public class Example : ModuleRules
 			new string[]
 			{
 				"Core",
-				// ... add other public dependencies that you statically link with here ...
 			}
 			);
 			
@@ -27,7 +24,9 @@ public class Example : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
+				"GameplayDebugger",
+				"EditorStyle",
+				"LevelEditor"
 			}
 			);
 
