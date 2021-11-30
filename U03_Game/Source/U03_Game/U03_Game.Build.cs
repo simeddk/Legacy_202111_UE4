@@ -15,6 +15,7 @@ public class U03_Game : ModuleRules
 			"AIModule",
 			"GameplayTasks",
 			"ProceduralMeshComponent",
+			"RenderCore",
 			"Example"
 		});
 
